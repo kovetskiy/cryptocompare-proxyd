@@ -1,0 +1,31 @@
+version: '3'
+
+output: prefixed
+
+tasks:
+  clean:
+    desc: cleans the working directory and removes docker containers
+    cmds:
+      - docker rm -f cryptocompare-proxyd-postgres
+
+  postgres:
+    desc: starts a new postgres instance
+    cmds:
+      - docker run --name cryptocompare-proxyd-postgres
+        -e POSTGRES_DB=cryptocompare-proxyd-dev
+        -e POSTGRES_PASSWORD=cryptocompare-proxyd-dev
+        -e POSTGRES_USER=cryptocompare-proxyd-dev
+        -p 5432:5432
+        postgres
+
+  run:
+    desc: runs the application
+    cmds:
+      - go build -v ./cmd/...
+      - ./cryptocompare-proxyd --debug
+
+  run-readonly:
+    desc: runs the application in the read-only mode on port 8081
+    cmds:
+      - go build -v ./cmd/...
+      - LISTEN_ADDRESS=:8081 ./cryptocompare-proxyd --debug -R
